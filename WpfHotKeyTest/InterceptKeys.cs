@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Input;
 
 namespace WpfHotKeyTest
 {
@@ -24,23 +19,15 @@ namespace WpfHotKeyTest
             using (Process curProcess = Process.GetCurrentProcess())
             using (ProcessModule curModule = curProcess.MainModule)
             {
-                return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
-                    GetModuleHandle(curModule.ModuleName), 0);
+                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
             }
         }
 
-        internal static void Start()
-        {
-            _hookID = SetHook(_proc);
-        }
+        internal static void Start() => _hookID = SetHook(_proc);
 
-        internal static void Stop()
-        {
-            UnhookWindowsHookEx(_hookID);
-        }
+        internal static void Stop() => UnhookWindowsHookEx(_hookID);
 
-        private delegate IntPtr LowLevelKeyboardProc(
-            int nCode, IntPtr wParam, IntPtr lParam);
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
 
         private static IntPtr HookCallback(
             int nCode, IntPtr wParam, IntPtr lParam)

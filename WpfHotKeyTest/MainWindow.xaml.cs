@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
+using GlobalHotKey;
 using Microsoft.Win32;
 using Application = System.Windows.Application;
 using Clipboard = System.Windows.Clipboard;
@@ -30,21 +31,12 @@ namespace WpfHotKeyTest
 
         public MainWindow()
         {
-            InterceptKeys.Start();
-            InterceptKeys.KeyPressed += (sender, keys) => 
-                KeyPressedSubject.OnNext(keys);
-
-            KeyPressedSubject.ObserveOn(Scheduler.Default)
-                .Where(key => key == Keys.LControlKey || key == Keys.C)
-                .Select(key => new Tuple<Keys, DateTime>(key, DateTime.Now))
-                .Buffer(3, 1)
-                .Where(list => list[0].Item1 == Keys.LControlKey && list[1].Item1 == Keys.C && list[2].Item1 == Keys.C && list[2].Item2 - list[0].Item2 < TimeSpan.FromMilliseconds(600))
-                .ObserveOnDispatcher()
-                .Subscribe(list =>
-                {
-                    if (Clipboard.ContainsText())
-                        Process.Start("https://www.lingvolive.com/en-us/translate/en-ru/" + Clipboard.GetText());
-                });
+            InterceptCtrlCC.Start();
+            InterceptCtrlCC.CtrlCCPressed += (sender, b) =>
+            {
+                if (Clipboard.ContainsText())
+                    Process.Start("https://www.lingvolive.com/en-us/translate/en-ru/" + Clipboard.GetText());
+            };
 
             InitializeComponent();
 
@@ -59,7 +51,7 @@ namespace WpfHotKeyTest
 
         private void CloseMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            InterceptKeys.Stop();
+            InterceptCtrlCC.Stop();
             Close();
         }
 
