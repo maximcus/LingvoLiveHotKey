@@ -2,25 +2,21 @@
 
 open InterceptKeys
 open System
-open System.Windows.Forms
-open System.Reactive.Subjects
 open System.Reactive.Concurrency
 open System.Reactive.Linq
+open System.Windows.Forms
 
 type InterceptCtrlCC() =
 
     static let _ctrlCCPressed = new Event<EventHandler<bool>,bool>()
-    static let KeyPressedSubject = new Subject<Keys>()
     
     [<CLIEvent>]
-    static member CtrlCCPressed = _ctrlCCPressed.Publish
-    
+    static member CtrlCCPressed = _ctrlCCPressed.Publish    
     
     static member Stop() = InterceptKeys.Stop()
     
     static member Start() =
         InterceptKeys.Start() |> ignore
-        KeyPressed.Add (fun key -> KeyPressedSubject.OnNext key)
         KeyPressed.ObserveOn(Scheduler.Default)
             .Where(fun key -> key = Keys.LControlKey || key = Keys.C)
             .Select(fun key -> (key, DateTime.Now))
